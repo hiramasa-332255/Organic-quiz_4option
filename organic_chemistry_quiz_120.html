@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>有機化学 一問一答（120問）</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; background-color: #f5f5f5; padding: 1rem; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 2rem; }
+        .score-display { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding: 12px; background-color: #f9f9f9; border-radius: 8px; border: 1px solid #e0e0e0; }
+        .score-info { display: flex; gap: 2rem; align-items: center; }
+        .score-item { text-align: center; }
+        .score-label { font-size: 12px; color: #999; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .score-value { font-size: 20px; font-weight: bold; color: #1976d2; }
+        .percentage-bar { width: 100px; height: 24px; background-color: #e0e0e0; border-radius: 12px; overflow: hidden; display: flex; align-items: center; }
+        .percentage-fill { height: 100%; background: linear-gradient(90deg, #4caf50, #8bc34a); transition: width 0.3s ease; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: bold; }
+        .progress-section { margin-bottom: 2rem; }
+        .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .progress-number { font-size: 14px; color: #666; font-weight: 500; }
+        .progress-bar-container { flex: 1; height: 6px; background-color: #e0e0e0; border-radius: 10px; margin-left: 1rem; overflow: hidden; }
+        .progress-bar { height: 100%; background-color: #1976d2; transition: width 0.3s ease; }
+        .question-title { font-size: 13px; color: #999; font-weight: 500; margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .question-text { font-size: 17px; font-weight: 500; color: #222; margin-bottom: 1.8rem; line-height: 1.7; }
+        .options-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 2rem; }
+        .option-button { padding: 16px; text-align: left; font-size: 15px; border: 1.5px solid #ddd; border-radius: 8px; background-color: white; cursor: pointer; transition: all 0.2s ease; color: #333; }
+        .option-button:hover:not(:disabled) { background-color: #f9f9f9; border-color: #999; }
+        .option-button:disabled { cursor: default; }
+        .option-button.selected-correct { background-color: #d4edda; border-color: #28a745; color: #155724; }
+        .option-button.selected-incorrect { background-color: #f8d7da; border-color: #dc3545; color: #721c24; }
+        .option-button.correct { background-color: #d4edda; border-color: #28a745; color: #155724; }
+        .explanation-section { margin: 1.5rem 0; padding: 1.2rem; background-color: #f0f7ff; border-left: 4px solid #1976d2; border-radius: 6px; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .explanation-title { font-size: 14px; font-weight: 600; color: #1565c0; margin-bottom: 0.8rem; margin-top: 0; }
+        .explanation-text { font-size: 15px; color: #333; line-height: 1.7; margin: 0; }
+        .next-button { width: 100%; padding: 14px; font-size: 16px; background-color: #1976d2; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: background-color 0.2s ease; }
+        .next-button:hover { background-color: #1565c0; }
+        .result-section { text-align: center; }
+        .result-title { font-size: 28px; font-weight: 600; color: #222; margin-bottom: 1.5rem; }
+        .result-score { font-size: 56px; font-weight: bold; color: #1976d2; margin: 1rem 0; }
+        .result-percentage { font-size: 18px; color: #666; margin-bottom: 1.5rem; }
+        .result-feedback { font-size: 16px; color: #555; margin-bottom: 2rem; line-height: 1.6; }
+        .result-stats { margin-top: 2rem; padding: 1.5rem; background-color: #f5f5f5; border-radius: 8px; }
+        .stats-title { font-size: 16px; font-weight: 600; color: #222; margin-bottom: 1.5rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-box { padding: 1rem; background: white; border-radius: 8px; border-left: 4px solid; text-align: center; }
+        .stat-box.correct { border-left-color: #4caf50; }
+        .stat-box.incorrect { border-left-color: #f44336; }
+        .stat-label { font-size: 12px; color: #666; margin-bottom: 4px; }
+        .stat-number { font-size: 28px; font-weight: bold; margin-bottom: 4px; }
+        .stat-box.correct .stat-number { color: #4caf50; }
+        .stat-box.incorrect .stat-number { color: #f44336; }
+        .stat-percentage { font-size: 14px; color: #999; }
+        .question-review { margin-top: 1.5rem; }
+        .review-title { font-size: 14px; font-weight: 600; color: #222; margin-bottom: 1rem; }
+        .review-item { padding: 0.8rem; margin-bottom: 0.8rem; background: white; border-radius: 6px; border-left: 4px solid; font-size: 13px; }
+        .review-item.correct { border-left-color: #4caf50; color: #2e7d32; }
+        .review-item.incorrect { border-left-color: #f44336; color: #c62828; }
+        .review-number { font-weight: 600; }
+        .reset-button { padding: 12px 32px; font-size: 16px; background-color: #1976d2; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: background-color 0.2s ease; }
+        .reset-button:hover { background-color: #1565c0; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="quizSection">
+            <div class="score-display">
+                <div class="score-info">
+                    <div class="score-item">
+                        <div class="score-label">正解</div>
+                        <div class="score-value"><span id="currentScore">0</span>/<span id="totalQuestions2">120</span></div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">正答率</div>
+                        <div class="score-value" id="currentPercentage">0%</div>
+                    </div>
+                </div>
+                <div class="percentage-bar">
+                    <div class="percentage-fill" id="percentageFill" style="width: 0%">
+                        <span id="fillPercentage">0%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="progress-section">
+                <div class="progress-header">
+                    <span class="progress-number"><span id="currentNum">1</span> / <span id="totalNum">120</span></span>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progressBar" style="width: 0.83%"></div>
+                    </div>
+                </div>
+                <div class="question-title" id="questionTitle"></div>
+                <div class="question-text" id="questionText"></div>
+            </div>
+            <div class="options-container" id="optionsContainer"></div>
+            <div id="explanationSection" class="explanation-section hidden">
+                <h3 class="explanation-title">📚 解説</h3>
+                <p class="explanation-text" id="explanationText"></p>
+            </div>
+            <button class="next-button hidden" id="nextButton">次へ</button>
+        </div>
+        <div id="resultSection" class="result-section hidden">
+            <h2 class="result-title">テスト完了！</h2>
+            <div class="result-score"><span id="finalScore">0</span>/<span id="totalQuestions">120</span></div>
+            <div class="result-percentage">正答率: <span id="percentageResult">0</span>%</div>
+            <div class="result-feedback" id="feedbackText"></div>
+            <div class="result-stats">
+                <h3 class="stats-title">📊 詳細統計</h3>
+                <div class="stats-grid">
+                    <div class="stat-box correct">
+                        <div class="stat-label">正解</div>
+                        <div class="stat-number" id="correctCount">0</div>
+                        <div class="stat-percentage" id="correctPercentage">0%</div>
+                    </div>
+                    <div class="stat-box incorrect">
+                        <div class="stat-label">不正解</div>
+                        <div class="stat-number" id="incorrectCount">0</div>
+                        <div class="stat-percentage" id="incorrectPercentage">0%</div>
+                    </div>
+                </div>
+                <div class="question-review">
+                    <div class="review-title">✓ 正解した問題</div>
+                    <div id="correctReview" style="max-height: 300px; overflow-y: auto;"></div>
+                </div>
+                <div class="question-review">
+                    <div class="review-title">✗ 間違えた問題</div>
+                    <div id="incorrectReview" style="max-height: 300px; overflow-y: auto;"></div>
+                </div>
+            </div>
+            <button class="reset-button" id="resetButton">もう一度挑戦する</button>
+        </div>
+    </div>
+
+    <script>
+        const q=[
+            {id:1,title:"Jones酸化",question:"Jones酸化において、アルコールをカルボン酸やケトンへ酸化するために用いられる標準的な試薬の組み合わせはどれか？",options:[{label:"A",text:"KMnO4,NaOH"},{label:"B",text:"CrO3,H2SO4"},{label:"C",text:"OsO4,NaIO4"},{label:"D",text:"LiAlH4,THF"}],correct:"B",explanation:"Jones酸化はCrO3と硫酸を用いた強力な酸化反応です。第一級アルコールはカルボン酸に、第二級アルコールはケトンに酸化されます。"},
+            {id:2,title:"Beckmann転位",question:"Beckmann転位において、オキシムを酸で処理した際に得られる主な生成物はどれか？",options:[{label:"A",text:"エステル"},{label:"B",text:"アミン"},{label:"C",text:"アミド"},{label:"D",text:"ニトリル"}],correct:"C",explanation:"Beckmann転位では、オキシムが酸で処理されるとニトリルイオンが脱離し、隣接する基が転位してアミドが生成されます。"},
+            {id:3,title:"Birch還元",question:"Birch還元において、芳香環を部分還元して非共役ジエンを得るために用いられる試薬はどれか？",options:[{label:"A",text:"H2,Pd/C"},{label:"B",text:"NaBH4,EtOH"},{label:"C",text:"Na,液体NH3"},{label:"D",text:"Zn(Hg),HCl"}],correct:"C",explanation:"Birch還元は、ナトリウムと液体アンモニアを用いた選択的な芳香環還元法です。"},
+            {id:4,title:"Cannizzaro反応",question:"Cannizzaro反応が進行するために、反応物であるアルデヒドが満たしているべき条件はどれか？",options:[{label:"A",text:"α位に水素原子を持っていること"},{label:"B",text:"α位に水素原子を持っていないこと"},{label:"C",text:"芳香族環に直接結合していること"},{label:"D",text:"フェノール性水酸基を持っていること"}],correct:"B",explanation:"Cannizzaro反応は、α位に水素を持たないアルデヒドが強塩基で自己酸化還元される反応です。"},
+            {id:5,title:"Hofmann転位",question:"Hofmann転位において、1級アミドからアミンが生成される際、原料と比較して炭素数はどのように変化するか？",options:[{label:"A",text:"1つ増える"},{label:"B",text:"変わらない"},{label:"C",text:"1つ減る"},{label:"D",text:"2つ減る"}],correct:"C",explanation:"Hofmann転位では、1級アミドがハロゲンと塩基で処理される際、カルボニル炭素が脱離します。"},
+            {id:6,title:"Swern酸化",question:"Swern酸化において、DMSOと共に活性化剤として用いられる試薬はどれか？",options:[{label:"A",text:"(COCl)2"},{label:"B",text:"PCl5"},{label:"C",text:"SOCl2"},{label:"D",text:"CH3I"}],correct:"A",explanation:"Swern酸化は、(COCl)2でDMSOを活性化してスルホニウムイオンを生成し、アルコールを酸化します。低温で選択性が高いのが特徴です。"},
+            {id:7,title:"Wolff-Kishner還元",question:"Wolff-Kishner還元において、カルボニル基がメチレン基へと還元される過程で、中間体として生成するものはどれか？",options:[{label:"A",text:"オキシム"},{label:"B",text:"ヒドラゾン"},{label:"C",text:"イミン"},{label:"D",text:"エナミン"}],correct:"B",explanation:"Wolff-Kishner還元では、カルボニル化合物がヒドラジンと反応してヒドラゾンを形成し、加熱によってメチレンが生成されます。"},
+            {id:8,title:"Pinacol転位",question:"Pinacol転位の原料となる「ビシナルジオール」とはどのような構造か？",options:[{label:"A",text:"同じ炭素原子に2つのOH基"},{label:"B",text:"隣り合った炭素原子に1つずつOH基"},{label:"C",text:"炭素鎖の両端にOH基"},{label:"D",text:"環状構造の中にOH基が2つ"}],correct:"B",explanation:"ビシナルジオールは、隣接した炭素原子に各1つのOH基が結合した構造です。"},
+            {id:9,title:"Strecker合成",question:"Strecker合成において最終的に得られる化合物はどれか？",options:[{label:"A",text:"脂肪酸"},{label:"B",text:"アミノ酸"},{label:"C",text:"核酸"},{label:"D",text:"糖質"}],correct:"B",explanation:"Strecker合成は、アルデヒド、アミン、シアン化物からアミノ酸を得る古典的な合成法です。"},
+            {id:10,title:"Claisen転位",question:"Claisen転位は、反応機構の分類において以下のどれに該当するか？",options:[{label:"A",text:"親電子置換反応"},{label:"B",text:"ラジカル反応"},{label:"C",text:"[3,3]-シグマトロピー転位"},{label:"D",text:"脱離反応"}],correct:"C",explanation:"Claisen転位は、[3,3]-シグマトロピー転位に分類される熱的ペリ環状反応です。"},
+            {id:11,title:"Brownヒドロホウ素化",question:"Brownヒドロホウ素化において、アルケンにボラン付加後、過酸化水素と塩基で処理して得られるアルコールの配向性はどれか？",options:[{label:"A",text:"マルコフニコフ則に従う"},{label:"B",text:"アンチマルコフニコフ則に従う"},{label:"C",text:"ザイツェフ則に従う"},{label:"D",text:"立体保持で置換"}],correct:"B",explanation:"Brownヒドロホウ素化はアンチマルコフニコフ則に従い、H2O2-NaOH処理で酸化されます。"},
+            {id:12,title:"Curtius転位",question:"Curtius転位において、アシルアジドを加熱した際に中間体として生成し、加水分解によってアミンを与える化合物はどれか？",options:[{label:"A",text:"ニテン"},{label:"B",text:"イソシアネート"},{label:"C",text:"カルベン"},{label:"D",text:"アミド"}],correct:"B",explanation:"Curtius転位では、アシルアジドからイソシアネートが中間体として生成されます。"},
+            {id:13,title:"光延反応",question:"光延反応において、第2級アルコールを親核剤で置換してエステルなどを得る際、その立体化学は一般的にどうなるか？",options:[{label:"A",text:"完全な立体保持"},{label:"B",text:"ラセミ化"},{label:"C",text:"反転（SN2による立体反転）"},{label:"D",text:"置換基によって変化"}],correct:"C",explanation:"光延反応はSN2的な反転が起こり、立体化学が反転されます。"},
+            {id:14,title:"Fischerインドール合成",question:"Fischerインドール合成において、インドール骨格を形成するために、アルデヒドまたはケトンと反応させる原料はどれか？",options:[{label:"A",text:"フェニルアミン"},{label:"B",text:"アリールヒドラジン"},{label:"C",text:"ベンジルアミン"},{label:"D",text:"ピロール"}],correct:"B",explanation:"Fischerインドール合成は、アリールヒドラジンとケトンを酸触媒下で加熱してインドール誘導体を形成します。"},
+            {id:15,title:"Friedel-Craftsアシル化",question:"Friedel-Craftsアシル化反応において、反応を進行させる活性種は？",options:[{label:"A",text:"カルボカチオン"},{label:"B",text:"アシリウムイオン"},{label:"C",text:"ベンザイン"},{label:"D",text:"ラジカル"}],correct:"B",explanation:"Friedel-Craftsアシル化では、酸ハライドとルイス酸からアシリウムイオンが生成され、これが親電子として作用します。"},
+            {id:16,title:"Dieckmann縮合",question:"Dieckmann縮合は、どのような反応に分類されるか？",options:[{label:"A",text:"分子内アルドール縮合"},{label:"B",text:"分子内Claisen縮合"},{label:"C",text:"分子内Michael付加"},{label:"D",text:"分子外脱水縮合"}],correct:"B",explanation:"Dieckmann縮合は、ジエステルが分子内Claisen縮合を起こす反応です。"},
+            {id:17,title:"Mannich反応",question:"Mannich反応の第1段階において、アルデヒドと2級アミンから生成する活性な中間体はどれか？",options:[{label:"A",text:"エナミン"},{label:"B",text:"イミニウムイオン"},{label:"C",text:"オキシム"},{label:"D",text:"ヒドラゾン"}],correct:"B",explanation:"Mannich反応の第1段階では、アルデヒドと2級アミンがイミニウムイオンを形成します。"},
+            {id:18,title:"HVZ反応",question:"HVZ反応において、カルボン酸をα位でハロゲン化するために用いられる試薬の組み合わせはどれか？",options:[{label:"A",text:"X2,NaOH"},{label:"B",text:"X2,3価のリンハライド（PX3）"},{label:"C",text:"HX,AlCl3"},{label:"D",text:"SOCl2,Pyridine"}],correct:"B",explanation:"HVZ反応では、ハロゲンとリン試薬を用いてカルボン酸をα位でハロゲン化します。"},
+            {id:19,title:"Vilsmeier反応",question:"Vilsmeier反応を用いて、芳香環や複素環に導入することができる官能基はどれか？",options:[{label:"A",text:"カルボキシル基"},{label:"B",text:"ホルミル基（アルデヒド基）"},{label:"C",text:"アミノ基"},{label:"D",text:"ニトロ基"}],correct:"B",explanation:"Vilsmeier反応は、芳香環・複素環にホルミル基を直接導入する反応です。"},
+            {id:20,title:"Cope脱離",question:"Cope脱離において、アミンオキシドを加熱した際に進行する脱離様式はどれか？",options:[{label:"A",text:"アンチ脱離（E2脱離）"},{label:"B",text:"シン脱離（Ei脱離）"},{label:"C",text:"ラジカル脱離"},{label:"D",text:"親核置換反応"}],correct:"B",explanation:"Cope脱離は、5員環遷移状態を経由してシン脱離（Ei脱離）が進行します。"},
+            {id:21,title:"Cannizzaro反応",question:"α位に水素を持たないアルデヒドに対し、強塩基を作用させてアルコールとカルボン酸を等量得る反応名は？",options:[{label:"A",text:"Aldol反応"},{label:"B",text:"Cannizzaro反応"},{label:"C",text:"Claisen縮合"},{label:"D",text:"Benzoin縮合"}],correct:"B",explanation:"Cannizzaro反応は、α位に水素を持たないアルデヒドが強塩基で自己酸化還元される反応です。"},
+            {id:22,title:"Hofmann転位",question:"第1級アミドにハロゲンと塩基を作用させ、炭素が1つ減少したアミンを得る反応は？",options:[{label:"A",text:"Curtius転位"},{label:"B",text:"Beckmann転位"},{label:"C",text:"Hofmann転位"},{label:"D",text:"Wolff転位"}],correct:"C",explanation:"Hofmann転位は、1級アミドをハロゲンと塩基で処理し、カルボニル炭素が脱離してアミンを得る反応です。"},
+            {id:23,title:"Curtius転位",question:"カルボン酸からアシルアジドを経由し、イソシアネートを経てアミンを得る転位反応は？",options:[{label:"A",text:"Curtius転位"},{label:"B",text:"Schmidt転位"},{label:"C",text:"Lossen転位"},{label:"D",text:"Favorskii転位"}],correct:"A",explanation:"Curtius転位は、カルボン酸→アシルアジド→イソシアネート→アミンへの転位反応です。"},
+            {id:24,title:"Fischerインドール合成",question:"アリールヒドラジンとケトン（またはアルデヒド）からインドール環を合成する反応は？",options:[{label:"A",text:"Skraup合成"},{label:"B",text:"Fischerインドール合成"},{label:"C",text:"Pictet-Spengler反応"},{label:"D",text:"Vilsmeier反応"}],correct:"B",explanation:"Fischerインドール合成は、アリールヒドラジンとケトンを酸触媒下で加熱してインドール誘導体を形成します。"},
+            {id:25,title:"Strecker合成",question:"アルデヒド、アミン、シアン化水素からα-アミノニトリルを経てアミノ酸を得る合成法は？",options:[{label:"A",text:"Gabrier合成"},{label:"B",text:"Bucherer-Bergs反応"},{label:"C",text:"Strecker合成"},{label:"D",text:"Ugi反応"}],correct:"C",explanation:"Strecker合成は、アルデヒド、アミン、シアン化物からアミノ酸を得る古典的な合成法です。"},
+            {id:26,title:"Claisen転位",question:"アリルビニルエーテルを加熱することでγ,δ-不飽和カルボニル化合物を与える反応は？",options:[{label:"A",text:"Cope転位"},{label:"B",text:"Claisen転位"},{label:"C",text:"Sommelet-Hauser転位"},{label:"D",text:"Stevens転位"}],correct:"B",explanation:"Claisen転位は、アリルビニルエーテルを加熱してγ,δ-不飽和アルデヒドまたはケトンを生成する[3,3]-シグマトロピー転位です。"},
+            {id:27,title:"Dieckmann縮合",question:"ジエステルを分子内でClaisen縮合させ、環状β-ケトエステルを得る反応名は？",options:[{label:"A",text:"Dieckmann縮合"},{label:"B",text:"Dickmann縮合"},{label:"C",text:"Stobbe縮合"},{label:"D",text:"Darzens縮合"}],correct:"A",explanation:"Dieckmann縮合は、ジエステルが分子内Claisen縮合を起こし、環状β-ケトエステルを形成する反応です。"},
+            {id:28,title:"Vilsmeier反応",question:"芳香環にDMFとPOCl3を作用させ、ホルミル基を導入する反応は？",options:[{label:"A",text:"Gattermann反応"},{label:"B",text:"Reimer-Tiemann反応"},{label:"C",text:"Vilsmeier反応"},{label:"D",text:"Duffin反応"}],correct:"C",explanation:"Vilsmeier反応は、DMFとPOCl3から生成されるVilsmeier試薬を用いて、芳香環にホルミル基を直接導入します。"},
+            {id:29,title:"Mannich反応",question:"アルデヒド、2級アミン、エノール化可能なカルボニル化合物からβ-アミノカルボニルを得る反応は？",options:[{label:"A",text:"Michael付加"},{label:"B",text:"Mannich反応"},{label:"C",text:"Henry反応"},{label:"D",text:"Storkエナミン合成"}],correct:"B",explanation:"Mannich反応は、アルデヒドと2級アミンからイミニウムイオンを生成し、エノール化合物に親核攻撃してβ-アミノカルボニル化合物を生成します。"},
+            {id:30,title:"Favorskii転位",question:"α-ハロケトンに塩基を作用させ、炭素骨格の縮小を伴ってエステルやカルボン酸を得る反応は？",options:[{label:"A",text:"Favorskii転位"},{label:"B",text:"Pinacol転位"},{label:"C",text:"Benzil-Benzilic酸転位"},{label:"D",text:"Baeyer-Villiger酸化"}],correct:"A",explanation:"Favorskii転位は、α-ハロケトンに塩基が作用し、シクロプロパノン中間体を経由して炭素骨格が縮小される転位反応です。"},
+            {id:31,title:"Jones酸化",question:"Jones酸化において、酸化剤として用いられる試薬の組み合わせは？",options:[{label:"A",text:"PCC,CH2Cl2"},{label:"B",text:"CrO3,H2SO4"},{label:"C",text:"KMnO4,NaOH"},{label:"D",text:"OsO4,NMO"}],correct:"B",explanation:"Jones酸化は、CrO3と硫酸を用いた強力なアルコール酸化法です。"},
+            {id:32,title:"Swern酸化",question:"Swern酸化において、DMSOと共に活性化剤として用いられる試薬は？",options:[{label:"A",text:"DCC"},{label:"B",text:"(COCl)2"},{label:"C",text:"TsCl"},{label:"D",text:"Tf2O"}],correct:"B",explanation:"Swern酸化は、(COCl)2でDMSOを活性化してスルホニウムイオンを生成します。低温で進行し、選択性が高いのが特徴です。"},
+            {id:33,title:"Birch還元",question:"Birch還元において、芳香環を還元するために用いられる試薬は？",options:[{label:"A",text:"LiAlH4,THF"},{label:"B",text:"NaBH4,MeOH"},{label:"C",text:"Na,液体NH3"},{label:"D",text:"H2,Pd/C"}],correct:"C",explanation:"Birch還元は、ナトリウムと液体アンモニアを用いた選択的な芳香環還元法です。"},
+            {id:34,title:"Wolff-Kishner還元",question:"Wolff-Kishner還元においてカルボニル基を還元するために用いられる試薬は？",options:[{label:"A",text:"Zn(Hg),HCl"},{label:"B",text:"NH2NH2,KOH"},{label:"C",text:"NaBH3CN"},{label:"D",text:"Ph3P=CH2"}],correct:"B",explanation:"Wolff-Kishner還元は、ヒドラジンと塩基を用いてカルボニル化合物をメチレン基に還元します。"},
+            {id:35,title:"Brownヒドロホウ素化",question:"Brownヒドロホウ素化において、ボラン付加後の酸化工程で用いられる試薬は？",options:[{label:"A",text:"mCPBA"},{label:"B",text:"H2O2,NaOH"},{label:"C",text:"O3"},{label:"D",text:"NaIO4"}],correct:"B",explanation:"Brownヒドロホウ素化は、BH3がアルケンに付加した後、H2O2と塩基で酸化処理されてアルコールが得られます。"},
+            {id:36,title:"光延反応",question:"光延反応で用いられる試薬の組み合わせは？",options:[{label:"A",text:"Ph3P,CCl4"},{label:"B",text:"Ph3P,DEAD"},{label:"C",text:"DCC,DMAP"},{label:"D",text:"TiCl4,Et3N"}],correct:"B",explanation:"光延反応は、トリフェニルホスフィンと二アゾジカルボン酸エステルを用いて立体反転的な置換を実現します。"},
+            {id:37,title:"HVZ反応",question:"HVZ反応でカルボン酸のα位をハロゲン化する試薬は？",options:[{label:"A",text:"X2,NaOH"},{label:"B",text:"X2,P"},{label:"C",text:"NBS,hν"},{label:"D",text:"SOCl2"}],correct:"B",explanation:"HVZ反応は、ハロゲンとリン試薬を作用させてカルボン酸をα位でハロゲン化します。"},
+            {id:38,title:"Clemmensen還元",question:"Clemmensen還元において、カルボニル基をメチレン基にするための試薬は？",options:[{label:"A",text:"NH2NH2,KOH"},{label:"B",text:"Zn(Hg),HCl"},{label:"C",text:"LiAlH4,AlCl3"},{label:"D",text:"S(CH2CH2S),RaneyNi"}],correct:"B",explanation:"Clemmensen還元は、亜鉛アマルガムと塩酸を用いてカルボニル化合物をメチレン基に還元します。"},
+            {id:39,title:"Barton-McCombie脱酸素化",question:"Barton-McCombie脱酸素化においてラジカル還元に用いられる試薬は？",options:[{label:"A",text:"NaBH4"},{label:"B",text:"n-Bu3SnH,AIBN"},{label:"C",text:"Li,液体NH3"},{label:"D",text:"SmI2"}],correct:"B",explanation:"Barton-McCombie脱酸素化は、トリブチルスズハイドライドとラジカル開始剤を用います。"},
+            {id:40,title:"Malaprade反応",question:"Malaprade反応において、ビシナルジオールを酸化開裂させる試薬は？",options:[{label:"A",text:"CrO3"},{label:"B",text:"NaIO4"},{label:"C",text:"Pb(OAc)4"},{label:"D",text:"O3"}],correct:"B",explanation:"Malaprade反応は、過ヨウ素酸ナトリウムがビシナルジオールを酸化開裂する反応です。"},
+            {id:41,title:"Beckmann転位の転位様式",question:"Beckmann転位においてオキシムからアミドが生成する際の転位様式は？",options:[{label:"A",text:"syn転位"},{label:"B",text:"anti転位"},{label:"C",text:"ラジカル転位"},{label:"D",text:"分子間転位"}],correct:"B",explanation:"Beckmann転位は、anti転位により進行します。"},
+            {id:42,title:"Friedel-Craftsアシル化",question:"Friedel-Craftsアシル化反応において、反応を進行させる活性種は？",options:[{label:"A",text:"カルボカチオン"},{label:"B",text:"アシリウムイオン"},{label:"C",text:"ベンザイン"},{label:"D",text:"カルベン"}],correct:"B",explanation:"Friedel-Craftsアシル化では、酸ハライドがルイス酸と反応してアシリウムイオンを形成します。"},
+            {id:43,title:"Wolff転位",question:"Wolff転位においてα-ジアゾケトンが光または熱で分解して生じる中間体は？",options:[{label:"A",text:"ニトレン"},{label:"B",text:"カルベン"},{label:"C",text:"ラジカル"},{label:"D",text:"アニオン"}],correct:"B",explanation:"Wolff転位では、α-ジアゾケトンがカルベンを生成し、ケテンへ転位します。"},
+            {id:44,title:"HWE反応",question:"HWE反応において生成する、四員環中間体の名称は？",options:[{label:"A",text:"オキサゼチジン"},{label:"B",text:"オキサホスフェタン"},{label:"C",text:"ホスフィラン"},{label:"D",text:"ジオキセタン"}],correct:"B",explanation:"HWE反応は、ホスホノアセタートがカルボニル化合物と反応してオキサホスフェタンを経由します。"},
+            {id:45,title:"Favorskii転位の中間体",question:"Favorskii転位においてα-ハロケトンに塩基が作用して生成する三員環中間体は？",options:[{label:"A",text:"オキシラン"},{label:"B",text:"アジリジン"},{label:"C",text:"シクロプロパノン"},{label:"D",text:"チイラン"}],correct:"C",explanation:"Favorskii転位では、α-ハロケトンに塩基が作用し、シクロプロパノンを中間体として形成します。"},
+            {id:46,title:"Mannich反応の中間体",question:"Mannich反応の第一段階で、アルデヒドとアミンから生成する活性中間体は？",options:[{label:"A",text:"エナミン"},{label:"B",text:"イミニウムイオン"},{label:"C",text:"オキシム"},{label:"D",text:"ヒドラゾン"}],correct:"B",explanation:"Mannich反応の第一段階では、アルデヒドと2級アミンがイミニウムイオンを形成します。"},
+            {id:47,title:"Wagner-Meerwein転位",question:"Wagner-Meerwein転位の本質的な機構は？",options:[{label:"A",text:"アニオンのσ-シフト"},{label:"B",text:"カチオンのσ-シフト"},{label:"C",text:"ラジカルのσ-シフト"},{label:"D",text:"[3,3]-シグマトロピー転位"}],correct:"B",explanation:"Wagner-Meerwein転位は、カルボカチオン中間体においてシグマ結合がシフトする反応です。"},
+            {id:48,title:"Cope脱離の遷移状態",question:"Cope脱離における遷移状態の幾何学的な特徴は？",options:[{label:"A",text:"アンチ平面"},{label:"B",text:"シン平面（5員環遷移状態）"},{label:"C",text:"ラジカル解離"},{label:"D",text:"ボート型遷移状態"}],correct:"B",explanation:"Cope脱離は、5員環遷移状態を経由してシン脱離が進行します。"},
+            {id:49,title:"1,3-双極子付加環化",question:"1,3-双極子付加環化反応の機構的分類は？",options:[{label:"A",text:"段階的反応"},{label:"B",text:"協奏的反応"},{label:"C",text:"ラジカル連鎖反応"},{label:"D",text:"親核置換反応"}],correct:"B",explanation:"1,3-双極子付加環化反応は、ウッドワード・ホフマン則に従う協奏的反応です。"},
+            {id:50,title:"Petersonオレフィン化",question:"Petersonオレフィン化において、塩基性条件下で進行する脱離様式は？",options:[{label:"A",text:"アンチ脱離"},{label:"B",text:"シン脱離"},{label:"C",text:"E1脱離"},{label:"D",text:"E1cB脱離"}],correct:"B",explanation:"Petersonオレフィン化は、塩基性条件下でシン脱離が起こります。"},
+            {id:51,title:"Cope脱離",question:"3級アミンオキシドを加熱することで、シン脱離によりアルケンを得る反応は？",options:[{label:"A",text:"Hofmann脱離"},{label:"B",text:"Cope脱離"},{label:"C",text:"Chugaev脱離"},{label:"D",text:"Wagner転位"}],correct:"B",explanation:"Cope脱離は、3級アミンオキシドを加熱して5員環遷移状態を経由したシン脱離によりアルケンを得ます。"},
+            {id:52,title:"Prins反応",question:"アルデヒドとアリル化合物をルイス酸存在下で反応させ、ホモアリルアルコールを得る反応は？",options:[{label:"A",text:"Aldol反応"},{label:"B",text:"Prins反応"},{label:"C",text:"Ene反応"},{label:"D",text:"Grignard反応"}],correct:"B",explanation:"Prins反応は、アルデヒドとアリル化合物がルイス酸触媒下で反応してホモアリルアルコールを生成します。"},
+            {id:53,title:"アズラクトン",question:"Erlenmeyer-Plöchl合成において、中間体として生成する複素環化合物「アズラクトン」の別名は？",options:[{label:"A",text:"オキサゾール"},{label:"B",text:"オキサゾロン"},{label:"C",text:"イミダゾール"},{label:"D",text:"チアゾール"}],correct:"B",explanation:"アズラクトン（アズレノン）はオキサゾロンとも呼ばれる5員環複素環です。"},
+            {id:54,title:"Eschweiler-Clarke反応",question:"アミンをギ酸とホルムアルデヒドで処理してメチル化する反応名は？",options:[{label:"A",text:"Mannich反応"},{label:"B",text:"Eschweiler-Clarke反応"},{label:"C",text:"Hofmann分解"},{label:"D",text:"Skraup合成"}],correct:"B",explanation:"Eschweiler-Clarke反応は、1級アミンをホルムアルデヒドと蟻酸で処理してジメチル化します。"},
+            {id:55,title:"Beckmann Fragmentation",question:"オキシムのα位に4級炭素やヘテロ原子がある場合、転位ではなく開裂が優先する現象は？",options:[{label:"A",text:"Beckmann転位"},{label:"B",text:"Beckmann Fragmentation"},{label:"C",text:"Schmidt開裂"},{label:"D",text:"Neff反応"}],correct:"B",explanation:"Beckmann Fragmentationは、オキシムの開裂が転位より優先する現象です。"},
+            {id:56,title:"Wagner-Meerwein転位",question:"カチオンの中間体を経て、より安定なカルボカチオンへ炭素骨格がσ-シフトする転位の総称は？",options:[{label:"A",text:"Pinacol転位"},{label:"B",text:"Wagner-Meerwein転位"},{label:"C",text:"Favorskii転位"},{label:"D",text:"Wolff転位"}],correct:"B",explanation:"Wagner-Meerwein転位は、カルボカチオンのσ-シフトにより炭素骨格が再編成される転位です。"},
+            {id:57,title:"Dakin反応",question:"芳香族アルデヒドを過酸化水素と塩基で処理し、フェノール類へと変換する反応は？",options:[{label:"A",text:"Baeyer-Villiger酸化"},{label:"B",text:"Dakin反応"},{label:"C",text:"Jones酸化"},{label:"D",text:"Swern酸化"}],correct:"B",explanation:"Dakin反応は、芳香族アルデヒドが過酸化水素とアルカリ触媒で酸化されてフェノールが生成されます。"},
+            {id:58,title:"トリアゾール",question:"アジドとアルキンから1,3-双極子付加環化によって生成する複素環は？",options:[{label:"A",text:"ピラゾール"},{label:"B",text:"トリアゾール"},{label:"C",text:"イソキサゾール"},{label:"D",text:"テトラゾール"}],correct:"B",explanation:"アジドとアルキンの1,3-双極子付加環化により、1,2,3-トリアゾールが生成されます。"},
+            {id:59,title:"Michaelis-Arbuzov反応",question:"亜リン酸エステルとハロゲン化アルキルからホスホン酸エステルを得る反応名は？",options:[{label:"A",text:"Wittig反応"},{label:"B",text:"Michaelis-Arbuzov反応"},{label:"C",text:"Perkow反応"},{label:"D",text:"HWE反応"}],correct:"B",explanation:"Michaelis-Arbuzov反応は、亜リン酸エステルがハロゲン化アルキルと反応してホスホン酸エステルを生成します。"},
+            {id:60,title:"Petersonオレフィン化",question:"Petersonオレフィン化において、カルボアニオンを安定化し脱離能を持たせるために導入される基は？",options:[{label:"A",text:"トリフェニルホスフィン基"},{label:"B",text:"トリメチルシリル基"},{label:"C",text:"トシル基"},{label:"D",text:"トリフラート基"}],correct:"B",explanation:"Petersonオレフィン化では、トリメチルシリル基がカルボアニオンを安定化します。"},
+            {id:61,title:"Swern酸化の温度",question:"Swern酸化において、スルホニウム塩中間体の分解を防ぐために必要な反応温度は？",options:[{label:"A",text:"室温"},{label:"B",text:"−60～−78℃"},{label:"C",text:"0℃"},{label:"D",text:"100℃以上"}],correct:"B",explanation:"Swern酸化は、極低温（−78℃）で進行させることで選択性を確保しています。"},
+            {id:62,title:"Birch還元の位置選択性",question:"Birch還元において、電子供与基を持つベンゼン環を還元した際の主生成物は？",options:[{label:"A",text:"1-メトキシシクロヘキサン"},{label:"B",text:"1-メトキシ-1,4-シクロヘキサジエン"},{label:"C",text:"2-メトキシ-1,4-シクロヘキサジエン"},{label:"D",text:"アニソール"}],correct:"C",explanation:"Birch還元では、電子供与基が1,4-位に非共役ジエンを形成します。"},
+            {id:63,title:"Oxymercuration",question:"Oxymercuration反応の反応過程で、アルケンと水銀試薬から生成する中間体は？",options:[{label:"A",text:"カルボカチオン"},{label:"B",text:"マーキュリニウムイオン"},{label:"C",text:"エポキシド"},{label:"D",text:"ラジカル"}],correct:"B",explanation:"Oxymercurationでは、マーキュリニウムイオン中間体が形成されます。"},
+            {id:64,title:"Vilsmeier試薬",question:"Vilsmeier反応においてDMFとPOCl3から生成する活性種は？",options:[{label:"A",text:"アシリウムイオン"},{label:"B",text:"クロロイミニウム塩"},{label:"C",text:"カルベン"},{label:"D",text:"ニトレン"}],correct:"B",explanation:"Vilsmeier試薬は、DMFとPOCl3から生成されるクロロイミニウム塩です。"},
+            {id:65,title:"Barton-McCombie脱酸素化の試薬",question:"Barton-McCombie脱酸素化においてアルコールをラジカル還元可能な形式に変換する試薬は？",options:[{label:"A",text:"TsCl,Py"},{label:"B",text:"CS2,MeI,NaH"},{label:"C",text:"SOCl2"},{label:"D",text:"PBr3"}],correct:"B",explanation:"Barton-McCombie脱酸素化では、アルコールをキサンテートに変換します。"},
+            {id:66,title:"Arndt-Eistert合成",question:"Arndt-Eistert合成において、ジアゾケトンから炭素鎖の増えた生成物を得るための触媒は？",options:[{label:"A",text:"AlCl3"},{label:"B",text:"Ag2O"},{label:"C",text:"H2SO4"},{label:"D",text:"Pd/C"}],correct:"B",explanation:"Arndt-Eistert合成では、銀塩がWolff転位を促進します。"},
+            {id:67,title:"HWE反応の利点",question:"HWE反応がWittig反応よりも優れているとされる利点は？",options:[{label:"A",text:"副生するホスフィンオキシドが固体"},{label:"B",text:"副生するリン酸エステル残渣が水溶性"},{label:"C",text:"副生成物が出ない"},{label:"D",text:"溶媒が水"}],correct:"B",explanation:"HWE反応の副生物は水溶性で容易に除去できます。"},
+            {id:68,title:"Harriesオゾン分解",question:"Harriesオゾン分解においてオゾニドを還元的に分解してアルデヒドを得るための試薬は？",options:[{label:"A",text:"H2O2"},{label:"B",text:"Me2S"},{label:"C",text:"KMnO4"},{label:"D",text:"LiAlH4"}],correct:"B",explanation:"ジメチルスルフィドはオゾニドを還元的に分解してアルデヒドを与えます。"},
+            {id:69,title:"HVZ反応の中間体",question:"HVZ反応において少量のリンを添加することで系内で生成する活性な中間体は？",options:[{label:"A",text:"酸無水物"},{label:"B",text:"α-ハロ酸ハライド"},{label:"C",text:"ケテン"},{label:"D",text:"エノラート"}],correct:"A",explanation:"HVZ反応では、酸無水物が中間体として形成されます。"},
+            {id:70,title:"Pictet-Spengler反応",question:"Pictet-Spengler反応の反応速度を著しく向上させる芳香環上の置換基は？",options:[{label:"A",text:"電子吸引基"},{label:"B",text:"電子供与基"},{label:"C",text:"ハロゲン"},{label:"D",text:"置換基がない方が速い"}],correct:"B",explanation:"電子供与基がベンゼン環を活性化し、反応速度を向上させます。"},
+            {id:71,title:"Beckmann転位の幾何配置",question:"Beckmann転位において、窒素原子上に転位する基は脱離する水酸基に対してどのような幾何配置にあるか？",options:[{label:"A",text:"syn"},{label:"B",text:"anti"},{label:"C",text:"α位"},{label:"D",text:"配置に関係なく"}],correct:"B",explanation:"Beckmann転位はanti転位が起こります。"},
+            {id:72,title:"Claisen転位のシグマトロピー",question:"Claisen転位は何族のシグマトロピー転位か？",options:[{label:"A",text:"[1,3]"},{label:"B",text:"[1,5]"},{label:"C",text:"[3,3]"},{label:"D",text:"[2,3]"}],correct:"C",explanation:"Claisen転位は[3,3]-シグマトロピー転位です。"},
+            {id:73,title:"Mitsunobu反応",question:"Mitsunobu反応において、アルコールを活性化し脱離能を高める役割を担うのは？",options:[{label:"A",text:"DEAD"},{label:"B",text:"Ph3P"},{label:"C",text:"カルボン酸"},{label:"D",text:"THF"}],correct:"A",explanation:"DEADがアルコールを活性化して脱離能を高めます。"},
+            {id:74,title:"Favorskii転位の開裂方向",question:"Favorskii転位において三員環中間体が開裂する方向を決定する主要因は？",options:[{label:"A",text:"生成するカルボアニオンの安定性"},{label:"B",text:"立体障害の少なさ"},{label:"C",text:"試薬の濃度"},{label:"D",text:"加熱時間"}],correct:"A",explanation:"Favorskii転位ではカルボアニオンの安定性が開裂方向を決定します。"},
+            {id:75,title:"Cannizzaro反応の機構",question:"Cannizzaro反応の機構において、一方のアルデヒドから他方へ移動する化学種は？",options:[{label:"A",text:"プロトン"},{label:"B",text:"ヒドリド"},{label:"C",text:"水酸化物イオン"},{label:"D",text:"電子"}],correct:"B",explanation:"Cannizzaro反応ではヒドリドが移動します。"},
+            {id:76,title:"1,3-双極子付加環化の位置選択性",question:"1,3-双極子付加環化反応の位置選択性を予測するために最も重要な理論は？",options:[{label:"A",text:"HSAB則"},{label:"B",text:"フロンティア軌道論"},{label:"C",text:"共鳴理論"},{label:"D",text:"VSEPR則"}],correct:"B",explanation:"フロンティア軌道論が1,3-双極子付加環化の位置選択性を予測します。"},
+            {id:77,title:"Wolff-Kishner還元の中間体",question:"Wolff-Kishner還元の過程で窒素分子が放出される直前に生成する不安定な中間体は？",options:[{label:"A",text:"ヒドラゾン"},{label:"B",text:"ジイミド中間体"},{label:"C",text:"アゾ化合物"},{label:"D",text:"イミン"}],correct:"B",explanation:"Wolff-Kishner還元ではジイミド中間体が形成されます。"},
+            {id:78,title:"Dieckmann縮合の完了条件",question:"Dieckmann縮合が完了するために、生成したβ-ケトエステルに対して必要なプロセスは？",options:[{label:"A",text:"酸による加水分解"},{label:"B",text:"塩基によるα位の脱プロトン化"},{label:"C",text:"水の除去"},{label:"D",text:"加熱還流"}],correct:"B",explanation:"Dieckmann縮合ではエノラート形成により平衡が完全に右に移動します。"},
+            {id:79,title:"Brownヒドロホウ素化の付加様式",question:"Brownヒドロホウ素化におけるボランのアルケンへの付加様式は？",options:[{label:"A",text:"anti付加"},{label:"B",text:"syn付加"},{label:"C",text:"ラジカル付加"},{label:"D",text:"E1付加"}],correct:"B",explanation:"ボランはアルケンにsyn付加します。"},
+            {id:80,title:"Curtius転位の脱離気体",question:"Curtius転位においてアシルアジドから中間体のイソシアネートが生じる際に脱離する気体は？",options:[{label:"A",text:"CO2"},{label:"B",text:"N2"},{label:"C",text:"O2"},{label:"D",text:"H2"}],correct:"B",explanation:"Curtius転位ではN2が脱離します。"},
+            {id:81,title:"Malaprade反応の生成物",question:"Malaprade反応において1,2-ジオールが酸化開裂した際に得られる生成物は？",options:[{label:"A",text:"カルボン酸"},{label:"B",text:"アルデヒドまたはケトン"},{label:"C",text:"エステル"},{label:"D",text:"エポキシド"}],correct:"B",explanation:"Malaprade反応ではビシナルジオールが二つのカルボニル化合物に開裂します。"},
+            {id:82,title:"Strecker合成の中間体",question:"Strecker合成においてアルデヒドとアンモニアから最初に生成する中間体は？",options:[{label:"A",text:"イミン"},{label:"B",text:"アミド"},{label:"C",text:"ニトリル"},{label:"D",text:"エナミン"}],correct:"A",explanation:"Strecker合成ではイミンが最初に生成されます。"},
+            {id:83,title:"Fischerインドール合成の触媒",question:"Fischerインドール合成においてアリールヒドラゾンをインドールへ環化させるために必要な触媒は？",options:[{label:"A",text:"強塩基"},{label:"B",text:"酸触媒"},{label:"C",text:"金属触媒"},{label:"D",text:"光触媒"}],correct:"B",explanation:"Fischerインドール合成は酸触媒下で進行します。"},
+            {id:84,title:"Knoevenagel縮合",question:"Knoevenagel縮合においてマロン酸ジエチルなどの活性メチレン化合物と反応させる相手は？",options:[{label:"A",text:"アルキルハライド"},{label:"B",text:"アルデヒドまたはケトン"},{label:"C",text:"エステル"},{label:"D",text:"カルボン酸"}],correct:"B",explanation:"Knoevenagel縮合は活性メチレン化合物がカルボニル化合物と縮合します。"},
+            {id:85,title:"Perkow反応の生成物",question:"Perkow反応においてα-ハロケトンと亜リン酸エステルから得られる生成物は？",options:[{label:"A",text:"ホスホン酸エステル"},{label:"B",text:"エノールホスフェート"},{label:"C",text:"ホスホニウム塩"},{label:"D",text:"リン酸エステル"}],correct:"B",explanation:"Perkow反応ではエノールホスフェートが生成されます。"},
+            {id:86,title:"Mannich反応の生成物",question:"Mannich反応において2級アミン、ホルムアルデヒド、ケトンから得られる生成物の名称は？",options:[{label:"A",text:"α-アミノ酸"},{label:"B",text:"β-アミノカルボニル化合物"},{label:"C",text:"アミド"},{label:"D",text:"イミン"}],correct:"B",explanation:"Mannich反応はβ-アミノカルボニル化合物（Mannich塩基）を生成します。"},
+            {id:87,title:"Friedel-Craftsアルキル化の骨格転位",question:"Friedel-Craftsアルキル化において直鎖の1-クロロプロパンを用いてもイソプロピルベンゼンが主生成物となる理由は？",options:[{label:"A",text:"立体障害"},{label:"B",text:"Wagner-Meerwein型転位"},{label:"C",text:"ルイス酸の性質"},{label:"D",text:"溶媒の効果"}],correct:"B",explanation:"1級カルボカチオンがWagner-Meerwein型転位により2級カルボカチオンになります。"},
+            {id:88,title:"Pinacol転位の骨格変化",question:"Pinacol転位において環状のビシナルジオールが反応するとどのような骨格変化が起こりやすいか？",options:[{label:"A",text:"環の開裂"},{label:"B",text:"環の縮小または拡大"},{label:"C",text:"変化なし"},{label:"D",text:"ベンゼン環の形成"}],correct:"B",explanation:"Pinacol転位は環状ジオールを環の縮小または拡大させます。"},
+            {id:89,title:"Cope脱離の原料調製",question:"Cope脱離の原料である「アミンオキシド」を調製するために3級アミンと反応させる試薬は？",options:[{label:"A",text:"LiAlH4"},{label:"B",text:"H2O2またはmCPBA"},{label:"C",text:"NaBH4"},{label:"D",text:"O3"}],correct:"B",explanation:"過酸化水素またはmCPBAが3級アミンをアミンオキシドに酸化します。"},
+            {id:90,title:"Jones酸化の最終生成物",question:"Jones酸化によって第2級アルコールを酸化した際の最終生成物は？",options:[{label:"A",text:"アルデヒド"},{label:"B",text:"ケトン"},{label:"C",text:"カルボン酸"},{label:"D",text:"エステル"}],correct:"B",explanation:"Jones酸化は第2級アルコールをケトンに酸化します。"},
+            {id:91,title:"Petersonオレフィン化の脱離",question:"Petersonオレフィン化において酸性条件下で進行する脱離の様式は？",options:[{label:"A",text:"syn脱離"},{label:"B",text:"anti脱離"},{label:"C",text:"ラジカル脱離"},{label:"D",text:"E1脱離"}],correct:"B",explanation:"Petersonオレフィン化は酸性条件下でanti脱離が起こります。"},
+            {id:92,title:"Baeyer-Villiger酸化の転位能",question:"Baeyer-Villiger酸化における基質の転位移動能の順序で正しいのは？",options:[{label:"A",text:"メチル > 1級アルキル"},{label:"B",text:"3級アルキル > 2級アルキル > 1級アルキル > メチル"},{label:"C",text:"フェニル基は常に最後"},{label:"D",text:"全て等しい"}],correct:"B",explanation:"Baeyer-Villiger酸化では転位能が炭素の置換度に依存します。"},
+            {id:93,title:"1,3-双極子付加の反応性",question:"1,3-双極子付加環化において電子不足なアルケンに対し反応性が高いのはどのような双極子か？",options:[{label:"A",text:"電子不足なもの"},{label:"B",text:"電子豊富なもの"},{label:"C",text:"中性のもの"},{label:"D",text:"立体的に大きいもの"}],correct:"B",explanation:"フロンティア軌道論により、電子豊富な双極子が反応しやすいです。"},
+            {id:94,title:"Birch還元と電子吸引基",question:"Birch還元において電子吸引基を持つ芳香環を還元した場合置換基はどの位置に残るか？",options:[{label:"A",text:"還元された炭素上"},{label:"B",text:"還元されなかった炭素上"},{label:"C",text:"ランダム"},{label:"D",text:"メタ位"}],correct:"B",explanation:"Birch還元では電子吸引基の根元は還元されません。"},
+            {id:95,title:"Hofmann転位の副生物",question:"Hofmann転位において中間体のイソシアネートが加水分解される際アミンと共に生成する物質は？",options:[{label:"A",text:"H2"},{label:"B",text:"CO2"},{label:"C",text:"NH3"},{label:"D",text:"CH4"}],correct:"B",explanation:"Hofmann転位ではCO2が生成されます。"},
+            {id:96,title:"Ene反応の反応速度",question:"Ene反応において電子不足なエノフィルを用いると反応速度はどうなるか？",options:[{label:"A",text:"遅くなる"},{label:"B",text:"速くなる"},{label:"C",text:"変わらない"},{label:"D",text:"反応が止まる"}],correct:"B",explanation:"電子不足なエノフィルは反応速度を向上させます。"},
+            {id:97,title:"Beckmann転位の応用",question:"Beckmann転位を応用して、シクロヘキサノンオキシドから合成される工業的に重要な化合物は？",options:[{label:"A",text:"アジピン酸"},{label:"B",text:"ε-カプロラクタム"},{label:"C",text:"テレフタル酸"},{label:"D",text:"アニリン"}],correct:"B",explanation:"ε-カプロラクタムはナイロン6の原料です。"},
+            {id:98,title:"Clemmensen還元の限界",question:"Clemmensen還元において適さない基質は？",options:[{label:"A",text:"塩基に弱いもの"},{label:"B",text:"酸に弱いもの"},{label:"C",text:"熱に強いもの"},{label:"D",text:"芳香族化合物"}],correct:"B",explanation:"Clemmensen還元は強酸性条件なので、酸に不安定な官能基には不適です。"},
+            {id:99,title:"Mitsunobu反応の応用",question:"Mitsunobu反応においてカルボン酸の代わりにフタルイミドを求核剤として用いると何を合成できるか？",options:[{label:"A",text:"エステル"},{label:"B",text:"第1級アミン"},{label:"C",text:"エーテル"},{label:"D",text:"ニトリル"}],correct:"B",explanation:"フタルイミドを用いると加水分解後に第1級アミンが得られます。"},
+            {id:100,title:"Arndt-Eistert合成の目的",question:"Arndt-Eistert合成の主な目的はカルボン酸の炭素鎖をどうすることか？",options:[{label:"A",text:"1炭素減らす"},{label:"B",text:"1炭素増やす"},{label:"C",text:"変わらない"},{label:"D",text:"2炭素増やす"}],correct:"B",explanation:"Arndt-Eistert合成は炭素鎖を1つ増やします。"},
+            {id:101,title:"Cope脱離詳細",question:"Cope脱離は第3級アミンオキシドをどのような条件下で進行させるか？",options:[{label:"A",text:"低温"},{label:"B",text:"高温（加熱）"},{label:"C",text:"室温"},{label:"D",text:"極低温"}],correct:"B",explanation:"Cope脱離は加熱により5員環遷移状態を経由して進行します。"},
+            {id:102,title:"Prins反応の生成物",question:"Prins反応においてアルデヒドとイソプレンがルイス酸触媒下で反応した場合の主な生成物は？",options:[{label:"A",text:"ホモアリルアルコール"},{label:"B",text:"アリルアルコール"},{label:"C",text:"エステル"},{label:"D",text:"アルカン"}],correct:"A",explanation:"Prins反応はホモアリルアルコールを生成します。"},
+            {id:103,title:"Eschweiler-Clarke反応詳細",question:"Eschweiler-Clarke反応において1級アミンがメチル化される際の活性種は？",options:[{label:"A",text:"ホルムアルデヒド"},{label:"B",text:"メチルカルベン"},{label:"C",text:"イミニウム中間体"},{label:"D",text:"メチラニオン"}],correct:"C",explanation:"Eschweiler-Clarke反応ではイミニウム中間体が形成されます。"},
+            {id:104,title:"Beckmann転位の工業応用",question:"Beckmann転位は特に次のどの化合物の工業的合成に利用されているか？",options:[{label:"A",text:"ベンゼン"},{label:"B",text:"アセトアニリド"},{label:"C",text:"アニリン"},{label:"D",text:"フェノール"}],correct:"B",explanation:"Beckmann転位はアセトアニリド製造に重要です。"},
+            {id:105,title:"Dakin反応の機構",question:"Dakin反応において芳香族アルデヒドからフェノールが生成される際の転位は？",options:[{label:"A",text:"ハイドリド転位"},{label:"B",text:"アリール転位"},{label:"C",text:"メチル転位"},{label:"D",text:"転位なし"},{correct:"B",explanation:"Dakin反応ではアリール基が転位して移動します。"},
+            {id:106,title:"1,3-双極子付加の例",question:"アジドとアルキンの1,3-双極子付加により生成する化合物はどのような特徴を持つか？",options:[{label:"A",text:"環状であり芳香族"},{label:"B",text:"環状であり非芳香族"},{label:"C",text:"非環状"},{label:"D",text:"線状重合体"}],correct:"B",explanation:"生成するトリアゾールは環状ですが非芳香族です。"},
+            {id:107,title:"HVZ反応の詳細",question:"HVZ反応においてリン試薬が果たす主な役割は？",options:[{label:"A",text:"触媒として作用"},{label:"B",text:"酸無水物を形成し活性化"},{label:"C",text:"還元剤として作用"},{label:"D",text:"保護基として作用"}],correct:"B",explanation:"リン試薬は酸無水物を形成してカルボン酸を活性化します。"},
+            {id:108,title:"Pictet-Spengler反応の骨格",question:"Pictet-Spengler反応によって構築される環骨格に含まれる原子は？",options:[{label:"A",text:"C,H,Oのみ"},{label:"B",text:"C,H,Nのみ"},{label:"C",text:"C,H,O,Nを含む"},{label:"D",text:"遷移金属を含む"}],correct:"B",explanation:"Pictet-Spengler反応ではテトラヒドロイソキノリンなどC,H,Nのみを含む化合物が生成されます。"},
+            {id:109,title:"Petersonオレフィン化の利点",question:"Petersonオレフィン化がWittig反応に比べて優れている点は？",options:[{label:"A",text:"より高い収率"},{label:"B",text:"シリル化合物のホスフィンより優れた活性化"},{label:"C",text:"副生物がホスフィンオキシドではなく揮発性"},{label:"D",text:"常温で進行"}],correct:"C",explanation:"Peterson反応の副生物は揮発性ケイ素化合物で除去が容易です。"},
+            {id:110,title:"Cope脱離と類似反応",question:"Cope脱離と同様にシン脱離を起こす反応は？",options:[{label:"A",text:"Chugaev脱離"},{label:"B",text:"Hofmann脱離"},{label:"C",text:"Zaitsev脱離"},{label:"D",text:"E2脱離"}],correct:"A",explanation:"Chugaev脱離もシン脱離を起こします。"},
+            {id:111,title:"Prins反応の触媒",question:"Prins反応で用いられるルイス酸として最も一般的なのは？",options:[{label:"A",text:"BF3"},{label:"B",text:"AlCl3"},{label:"C",text:"ZnCl2"},{label:"D",text:"SnCl4"}],correct:"A",explanation:"BF3は Prins反応の標準的なルイス酸です。"},
+            {id:112,title:"アズラクトンの反応性",question:"アズラクトンが高い反応性を示す理由は？",options:[{label:"A",text:"含まれているNの高い核電荷"},{label:"B",text:"ラクトン環が活性化されている"},{label:"C",text:"C=N二重結合が不飽和"},{label:"D",text:"張力のある環"}],correct:"B",explanation:"アズラクトンはラクトン環が活性化されて高い反応性を示します。"},
+            {id:113,title:"Eschweiler-Clarke反応の条件",question:"Eschweiler-Clarke反応を進行させるために必要な条件は？",options:[{label:"A",text:"光照射"},{label:"B",text:"加熱と触媒"},{label:"C",text:"低温"},{label:"D",text:"不活性ガス下"}],correct:"B",explanation:"Eschweiler-Clarke反応は加熱を必要とします。"},
+            {id:114,title:"Beckmann転位とNH3",question:"Beckmann転位においてアミド生成後アミンが副生する場合の主な原因は？",options:[{label:"A",text:"過剰な塩基"},{label:"B",text:"加水分解"},{label:"C",text:"脱炭酸化"},{label:"D",text:"酸化"}],correct:"B",explanation:"生成したアミドが加水分解されてアミンが副生されることがあります。"},
+            {id:115,title:"Dakin反応の応用",question:"Dakin反応はバニリン（バニラの香り成分）から何を合成するのに用いられるか？",options:[{label:"A",text:"ユーゲノール"},{label:"B",text:"イソユーゲノール"},{label:"C",text:"アニスアルデヒド"},{label:"D",text:"サフロール"}],correct:"B",explanation:"Dakin反応によりバニリンからイソユーゲノールが合成されます。"},
+            {id:116,title:"1,3-双極子付加とregioselectivity",question:"1,3-双極子付加において置換アルキンを用いた場合の位置選択性を支配する因子は？",options:[{label:"A",text:"立体効果のみ"},{label:"B",text:"電子効果のみ"},{label:"C",text:"両者の複合効果"},{label:"D",text:"温度のみ"}],correct:"C",explanation:"位置選択性は電子効果と立体効果の両者により支配されます。"},
+            {id:117,title:"Michaelis-Arbuzov反応の機構",question:"Michaelis-Arbuzov反応における亜リン酸エステルのハロゲン化アルキルへの親核攻撃はどこに向かうか？",options:[{label:"A",text:"リン原子に"},{label:"B",text:"炭素原子に"},{label:"C",text:"ハロゲン原子に"},{label:"D",text:"ハロゲン化物全体に"}],correct:"B",explanation:"Michaelis-Arbuzov反応では親核攻撃が炭素原子に向かいます。"},
+            {id:118,title:"Petersonオレフィン化と基質",question:"Petersonオレフィン化において最も反応性が高いカルボニル基は？",options:[{label:"A",text:"アルデヒド"},{label:"B",text:"ケトン"},{label:"C",text:"エステル"},{label:"D",text:"アミド"}],correct:"A",explanation:"アルデヒドがPetersonオレフィン化で最も反応性が高い基質です。"},
+            {id:119,title:"Cope脱離の生成物",question:"Cope脱離によるアルケン生成時の立体化学は？",options:[{label:"A",text:"E-選択的"},{label:"B",text:"Z-選択的"},{label:"C",text:"ランダム"},{label:"D",text:"5員環環構造に依存"}],correct:"A",explanation:"Cope脱離により生成するアルケンはE-選択的です。"},
+            {id:120,title:"有機合成総合",question:"カルボン酸からアミンへの変換を一段階で行うのに最適な反応は？",options:[{label:"A",text:"Hofmann転位"},{label:"B",text:"Curtius転位"},{label:"C",text:"Schmidt転位"},{label:"D",text:"いずれも適切"}],correct:"D",explanation:"3つの転位すべてがカルボン酸からアミンへの変換に利用できます。"}
+        ];
+
+        let currentIndex = 0, score = 0, answered = false, selectedAnswer = null, answerHistory = [];
+
+        function updateScoreDisplay() {
+            const percentage = q.length > 0 ? Math.round((score / q.length) * 100) : 0;
+            document.getElementById('currentScore').textContent = score;
+            document.getElementById('currentPercentage').textContent = percentage + '%';
+            document.getElementById('percentageFill').style.width = percentage + '%';
+            document.getElementById('fillPercentage').textContent = percentage + '%';
+        }
+
+        function displayQuestion() {
+            const question = q[currentIndex];
+            document.getElementById('questionTitle').textContent = question.title;
+            document.getElementById('questionText').textContent = question.question;
+            document.getElementById('currentNum').textContent = currentIndex + 1;
+            const progress = ((currentIndex + 1) / q.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                button.textContent = option.label + ': ' + option.text;
+                button.onclick = () => selectAnswer(option.label);
+                optionsContainer.appendChild(button);
+            });
+            answered = false;
+            selectedAnswer = null;
+            document.getElementById('explanationSection').classList.add('hidden');
+            document.getElementById('nextButton').classList.add('hidden');
+        }
+
+        function selectAnswer(label) {
+            if (answered) return;
+            answered = true;
+            selectedAnswer = label;
+            const question = q[currentIndex];
+            const isCorrect = label === question.correct;
+            if (isCorrect) score++;
+            answerHistory.push({questionId: question.id, title: question.title, isCorrect: isCorrect});
+            const buttons = document.querySelectorAll('.option-button');
+            buttons.forEach((button, index) => {
+                button.disabled = true;
+                const optionLabel = question.options[index].label;
+                if (optionLabel === label) {
+                    button.classList.add(label === question.correct ? 'selected-correct' : 'selected-incorrect');
+                    button.textContent += label === question.correct ? ' ✓' : ' ✗';
+                } else if (optionLabel === question.correct) {
+                    button.classList.add('correct');
+                    button.textContent += ' ✓';
+                }
+            });
+            document.getElementById('explanationText').textContent = question.explanation;
+            document.getElementById('explanationSection').classList.remove('hidden');
+            updateScoreDisplay();
+            document.getElementById('nextButton').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            if (currentIndex < q.length - 1) {
+                currentIndex++;
+                displayQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quizSection').classList.add('hidden');
+            document.getElementById('resultSection').classList.remove('hidden');
+            const percentage = Math.round((score / q.length) * 100);
+            const incorrect = q.length - score;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('percentageResult').textContent = percentage;
+            document.getElementById('correctCount').textContent = score;
+            document.getElementById('correctPercentage').textContent = percentage + '%';
+            document.getElementById('incorrectCount').textContent = incorrect;
+            document.getElementById('incorrectPercentage').textContent = (100 - percentage) + '%';
+            let feedback = percentage >= 80 ? '🌟 素晴らしい！よく理解できていますね。' : percentage >= 60 ? '👍 良好です。もう一度復習してみましょう。' : '📖 もう少し勉強が必要です。頑張ってください！';
+            document.getElementById('feedbackText').textContent = feedback;
+            document.getElementById('correctReview').innerHTML = answerHistory.filter(item => item.isCorrect).map(item => `<div class="review-item correct"><span class="review-number">第${item.questionId}問：</span> ${item.title}</div>`).join('') || '<div style="color: #999;">なし</div>';
+            document.getElementById('incorrectReview').innerHTML = answerHistory.filter(item => !item.isCorrect).map(item => `<div class="review-item incorrect"><span class="review-number">第${item.questionId}問：</span> ${item.title}</div>`).join('') || '<div style="color: #999;">なし</div>';
+        }
+
+        function reset() {
+            currentIndex = score = 0;
+            answered = false;
+            selectedAnswer = null;
+            answerHistory = [];
+            document.getElementById('quizSection').classList.remove('hidden');
+            document.getElementById('resultSection').classList.add('hidden');
+            updateScoreDisplay();
+            displayQuestion();
+        }
+
+        document.getElementById('nextButton').addEventListener('click', nextQuestion);
+        document.getElementById('resetButton').addEventListener('click', reset);
+        updateScoreDisplay();
+        displayQuestion();
+    </script>
+</body>
+</html>
